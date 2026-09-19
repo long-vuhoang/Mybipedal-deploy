@@ -24,8 +24,10 @@ RobstrideMotor::RobstrideMotor(ActuatorType   type,
    */
   if (type_ == ActuatorType::Robstride_00) {
     mit_param_ = MitParam ROBSTRIDE_00_MIT_MODE_DEFAULT_PARAM;
-  } else {
+  } else if (type_ == ActuatorType::Robstride_02) {
     mit_param_ = MitParam ROBSTRIDE_02_MIT_MODE_DEFAULT_PARAM;
+  } else if (type_ == ActuatorType::Robstride_05) {
+    mit_param_ = MitParam ROBSTRIDE_05_MIT_MODE_DEFAULT_PARAM;
   }
 }
 
@@ -47,7 +49,7 @@ void RobstrideMotor::SetDataFiled(uint8_t* send_base, uint8_t* recv_base) {
 const RobstrideMotor::Limits& RobstrideMotor::GetLimits() const {
   /*
    * Values taken directly from common_type.h ROBSTRIDE_0x_MIT_MODE_DEFAULT_PARAM.
-   * Robstride 00: torque ±14 Nm,  Robstride 02: torque ±17 Nm.
+   * Robstride 00: torque ±14 Nm, Robstride 02: torque ±17 Nm, Robstride 05: torque ±6 Nm.
    * Velocity and position limits are identical for both models.
    */
   static const Limits kLimits00 = {
@@ -64,7 +66,14 @@ const RobstrideMotor::Limits& RobstrideMotor::GetLimits() const {
       .kp       = 500.0f,
       .kd       = 5.0f,
   };
-  return (type_ == ActuatorType::Robstride_00) ? kLimits00 : kLimits02;
+  static const Limits kLimits05 = {
+    .position = 4.0f * static_cast<float>(M_PI),
+    .velocity = 33.0f,
+    .torque   = 6.0f,
+    .kp       = 500.0f,
+    .kd       = 5.0f,
+  };
+  return (type_ == ActuatorType::Robstride_00) ? kLimits00 : (type_ == ActuatorType::Robstride_02) ? kLimits02 : kLimits05;
 }
 
 // ── Quantisation helpers ─────────────────────────────────────────────────────

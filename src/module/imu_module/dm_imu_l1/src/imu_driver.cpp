@@ -19,8 +19,6 @@
 namespace dm_imu {
 
 static constexpr float kDeg2Rad = 3.14159265358979f / 180.f;
-static constexpr float kGravity = 9.81f;
-
 // ─────────────────────────────────────────────────────────────────
 //  SetRealTimeThread — set SCHED_FIFO + CPU affinity
 // ─────────────────────────────────────────────────────────────────
@@ -191,13 +189,6 @@ void ImuDriver::commitTick() noexcept
         stat_ticks_pub_.fetch_add(1, std::memory_order_relaxed);
     }
 
-    if (fall_cb_) {
-        bool fallen = (std::fabs(next.pitch_rad()) > LocomotionState::kFallThreshRad ||
-                       std::fabs(next.roll_rad())  > LocomotionState::kFallThreshRad);
-        if (fallen && !prev_fallen_) fall_cb_();
-        prev_fallen_ = fallen;
-    }
-
     pending_.has_accel = pending_.has_gyro = pending_.has_quat = false;
 }
 
@@ -236,52 +227,12 @@ ImuObservation ImuDriver::getObs() const noexcept
     return out;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  LocomotionState
-// ═══════════════════════════════════════════════════════════════════
-
-LocomotionState ImuDriver::getLocomotionState(float fall_thresh_rad,
-                                               float impact_thresh_g,
-                                               float stationary_rps) const noexcept
-{
-    ImuObservation obs{};
-    getObs(obs);
-
-    LocomotionState s{};
-    if (!obs.valid) return s;
-
-    s.pitch_rad  = obs.pitch_rad();
-    s.roll_rad   = obs.roll_rad();
-    s.yaw_rad    = obs.yaw_rad();
-    s.pitch_rate = obs.gyr_y;
-    s.roll_rate  = obs.gyr_x;
-    s.yaw_rate   = obs.gyr_z;
-
-    s.accel_norm_g     = obs.accel_norm() / kGravity;
-    s.accel_vertical_g = (obs.acc_z * std::cos(s.pitch_rad)
-                        + obs.acc_x * std::sin(s.pitch_rad)) / kGravity;
-
-    s.is_fallen      = (std::fabs(s.pitch_rad) > fall_thresh_rad ||
-                        std::fabs(s.roll_rad)  > fall_thresh_rad);
-    s.impact_detected = (s.accel_norm_g > impact_thresh_g);
-    s.is_stationary   = (std::max({std::fabs(obs.gyr_x),
-                                   std::fabs(obs.gyr_y),
-                                   std::fabs(obs.gyr_z)}) < stationary_rps);
-    s.timestamp_ns    = obs.timestamp_ns;
-    return s;
-}
-
 float ImuDriver::pitchRad()  const noexcept { return getObs().pitch_rad(); }
 float ImuDriver::rollRad()   const noexcept { return getObs().roll_rad();  }
 float ImuDriver::yawRad()    const noexcept { return getObs().yaw_rad();   }
 float ImuDriver::pitchRate() const noexcept { return getObs().gyr_y;       }
 float ImuDriver::rollRate()  const noexcept { return getObs().gyr_x;       }
 float ImuDriver::yawRate()   const noexcept { return getObs().gyr_z;       }
-
-bool ImuDriver::isFallen(float t) const noexcept {
-    auto o = getObs();
-    return std::fabs(o.pitch_rad()) > t || std::fabs(o.roll_rad()) > t;
-}
 
 ImuDriver::Stats ImuDriver::getStats() const noexcept {
     return { stat_ticks_total_.load(std::memory_order_relaxed),

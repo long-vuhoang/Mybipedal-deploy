@@ -35,6 +35,7 @@ class ControllerBase {
     vector_t init_state;
     vector_t stiffness;
     vector_t damping;
+    vector_t tau_limit;
   } joint_conf_;
   std::vector<std::string> joint_names_;
   // from ros2 topic

@@ -1,0 +1,6 @@
+<mujoco model = "Minibot Scene">
+
+    <include file = "robot/minibot_real_rev.xml" />
+    <include file = "environment/flat.xml" />
+
+</mujoco>

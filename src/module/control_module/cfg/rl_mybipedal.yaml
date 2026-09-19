@@ -1,5 +1,5 @@
 control_frequecy: 1000
-use_sim_handles: False
+use_sim_handles: True
 
 sub_joy_vel_name: /cmd_vel_limiter
 sub_imu_data_name: /imu/data
@@ -31,102 +31,97 @@ robot_states:
 
 # ── JOINT LIST ──────────────────────────────────────────────────────────────────
 joint_list:
-  - left_hip_roll_joint
   - left_hip_pitch_joint
+  - left_hip_roll_joint
+  - left_hip_yaw_joint
   - left_knee_joint
-  - left_ankle_joint
-  - right_hip_roll_joint
+  - left_ankle_pitch_joint
   - right_hip_pitch_joint
+  - right_hip_roll_joint
+  - right_hip_yaw_joint
   - right_knee_joint
-  - right_ankle_joint
-# ── JOINT OFFSET ────────────────────────────────────────────────────────────────
-# Sim không có sai lệch cơ khí — đặt tất cả = 0
-# Khi chuyển sang real robot, điền offset thực tế đo được sau khi zero actuator
-joint_offset:
-  left_hip_roll_joint:    0.0
-  left_hip_pitch_joint:   0.0
-  left_knee_joint:        0.0
-  left_ankle_joint: 0.0
-  right_hip_roll_joint:   0.0
-  right_hip_pitch_joint:  0.0
-  right_knee_joint:       0.0
-  right_ankle_joint: 0.0
+  - right_ankle_pitch_joint
 
+# ── JOINT OFFSET ────────────────────────────────────────────────────────────────
+joint_offset:
+  left_hip_pitch_joint: 0.0
+  left_hip_roll_joint: 0.0
+  left_hip_yaw_joint: 0.0
+  left_knee_joint: 0.0
+  left_ankle_pitch_joint: 0.0
+  right_hip_pitch_joint: 0.0
+  right_hip_roll_joint: 0.0
+  right_hip_yaw_joint: 0.0
+  right_knee_joint: 0.0
+  right_ankle_pitch_joint: 0.0
 # ── CONTROLLERS ─────────────────────────────────────────────────────────────────
 controllers:
-
-  # ── pd_idle ──────────────────────────────────────────────────────────────────
-  # stiffness=0, damping=0 → buông lỏng hoàn toàn, an toàn khi tắt nguồn
   pd_idle:
-    joint_list: [left_hip_roll_joint, left_hip_pitch_joint, left_knee_joint, left_ankle_joint, right_hip_roll_joint, right_hip_pitch_joint, right_knee_joint, right_ankle_joint]
-    
-    init_state:  [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
-    stiffness:   [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
-    damping:     [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
+    tau_limit:   [17.0, 17.0,  6.0, 14.0, 14.0, 17.0, 17.0,  6.0, 14.0, 14.0]
+    init_state:  [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    stiffness:   [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    damping:     [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
 
   # ── pd_zero ──────────────────────────────────────────────────────────────────
-  # Kéo tất cả khớp về q=0 trong 2 giây (trans_mode)
-  # Dùng làm base layer trong state stand và walk
   pd_zero:
-    joint_list: [left_hip_roll_joint, left_hip_pitch_joint, left_knee_joint, left_ankle_joint, right_hip_roll_joint, right_hip_pitch_joint, right_knee_joint, right_ankle_joint]
-    
-    init_state:  [0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0]
-    #              roll   pitch  knee   ankle  roll   pitch  knee   ankle
-    stiffness:   [40, 40, 60, 60, 50, 50, 30, 30]
-    damping:     [2.0, 2.0, 3.0, 3.0, 2.5, 2.5, 1.5, 1.5]
+    joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
+    tau_limit:   [17.0, 17.0,  6.0, 14.0, 14.0, 17.0, 17.0,  6.0, 14.0, 14.0]
+    init_state:  [ 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    stiffness:   [80.0, 80.0, 30.0, 80.0, 50.0, 80.0, 80.0, 30.0, 80.0, 50.0]
+    damping:     [ 2.3,  2.3,  1.0,  2.3,  1.8,  2.3,  2.3,  1.0,  2.3,  1.8]
 
   # ── pd_stand ─────────────────────────────────────────────────────────────────
-  # Tư thế đứng chuẩn — ghi đè pd_zero cho tất cả khớp chân
-  # init_state = góc mục tiêu khi đứng thẳng (đơn vị: radian)
-  #   hip_pitch dương = đùi nghiêng về trước
-  #   knee dương      = gối gập
-  #   ankle_pitch âm  = bàn chân gập ra sau để bù
-  # Chỉnh các giá trị này cho khớp với URDF của robot bạn
+  # Default stand joints position
   pd_stand:
-    joint_list: [left_hip_roll_joint, left_hip_pitch_joint, left_knee_joint, left_ankle_joint, right_hip_roll_joint, right_hip_pitch_joint, right_knee_joint, right_ankle_joint]
-
-    # Reordered to right-first: right values in old[4:8], left in old[0:4]
-    init_state:  [0.00, 0.00,  0.00, 0.00,  0.00,  0.00,  0.00, 0.00]
-    #              roll    pitch  knee   ankle  roll   pitch  knee   ankle
-    stiffness:   [40, 40, 60, 60, 50, 50, 30, 30]
-    damping:     [2.0, 2.0, 3.0, 3.0, 2.5, 2.5, 1.5, 1.5]
-
+    joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
+    tau_limit:   [ 17.0, 17.0,  6.0,  14.0,  14.0,  17.0, 17.0,  6.0,  14.0,  14.0]
+    init_state:  [-0.18,  0.0,  0.0, -0.36, -0.18, -0.18,  0.0,  0.0, -0.36, -0.18]
+    stiffness:   [ 80.0, 80.0, 30.0,  80.0,  50.0,  80.0, 80.0, 30.0,  80.0,  50.0]
+    damping:     [  2.3,  2.3,  1.0,   2.3,   1.8,   2.3,  2.3,  1.0,   2.3,   1.8]
+  
   # ── rl_walk ──────────────────────────────────────────────────────────────────
-  # RL controller — chạy policy ONNX để điều khiển đi bộ
-  # Stiffness thấp hơn pd_stand để RL có room điều chỉnh lực
   rl_walk:
-    joint_list: [left_hip_roll_joint, left_hip_pitch_joint, left_knee_joint, left_ankle_joint, right_hip_roll_joint, right_hip_pitch_joint, right_knee_joint, right_ankle_joint]
-
-    # Reordered to right-first: right values in old[4:8], left in old[0:4]
-    init_state:  [0.00, 0.00,  0.00, 0.00,  0.00,  0.00,  0.00, 0.00]
-    #              roll    pitch  knee   ankle  roll   pitch  knee   ankle
-    stiffness:   [40, 40, 60, 60, 50, 50, 30, 30]
-    damping:     [2.0, 2.0, 3.0, 3.0, 2.5, 2.5, 1.5, 1.5]
+    joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
+    tau_limit:   [ 17.0, 17.0,  6.0,  14.0,  14.0,  17.0, 17.0,  6.0,  14.0,  14.0]
+    init_state:  [-0.18,  0.0,  0.0, -0.36, -0.18, -0.18,  0.0,  0.0, -0.36, -0.18]
+    stiffness:   [ 80.0, 80.0, 30.0,  80.0,  50.0,  80.0, 80.0, 30.0,  80.0,  50.0]
+    damping:     [  2.3,  2.3,  1.0,   2.3,   1.8,   2.3,  2.3,  1.0,   2.3,   1.8]
 
     walk_step_conf:
-      action_scale: 0.25    # nhân với output của policy trước khi cộng vào init_state
-      decimation: 20       # policy chạy mỗi 10ms (1000Hz / 10 = 100Hz inference)
-      cycle_time: 0.7      # chu kỳ bước chân (giây) — khớp với lúc train
-      sw_mode: True        # True = dừng tại chỗ khi cmd_vel < threshold
-      cmd_threshold: 0.05  # ngưỡng coi là lệnh "đứng yên"
+      action_scale: 0.25
+      decimation: 20
+      sw_mode: False
+      cmd_threshold: 0.05
+      loop_dt: 0.001
 
     obs_scales:
-      lin_vel: 1.0         # scale lệnh vx, vy trước khi đưa vào observation
-      ang_vel: 1.0         # scale lệnh wz và đọc IMU angular velocity
-      dof_pos: 1.0         # scale joint position
-      dof_vel: 1.0        # scale joint velocity (làm nhỏ vì đơn vị rad/s lớn)
-      quat: 1.0            # scale euler angle từ IMU
+      lin_vel: 1.0
+      ang_vel: 0.25
+      dof_pos: 1.0
+      dof_vel: 0.05
+      quat: 1.0
 
-    onnx_conf:
-      policy_file: cfg/control_module/policy/rl_walk.onnx
-      actions_size: 8          # = số khớp
-      # observations_size = ang_vel(3)+gravity(3)+cmd(3)+joint_pos(8)+joint_vel(8)+action(8)
-      observations_size: 33
-      num_hist: 10             # buffer lịch sử = 10 × 33 obs = 330 floats
+    # ---- Gait command (freq[Hz], offset, duration, swing_height[m]) ----
+    gait_command:
+      freq: 0.8
+      offset: 0.5
+      duration: 0.4
+      swing_height: 0.12
+
+    policy_onnx_conf:
+      policy_file: cfg/control_module/policy/rl_walk_actor.onnx
+      actions_size: 10
+      # observations_size: 3(ang_vel) + 3(grav) + N(q_rel) + N(dq_rel) + N(last_action) + 2(sin,cos) + 4(gait_cmd) = 6 + 3*10 + 6 = 42
+      observations_size: 42
+      num_hist: 10
       observations_clip: 100.0
       actions_clip: 100.0
 
+    encoder_onnx_conf:
+      encoder_file: cfg/control_module/policy/rl_walk_encoder.onnx
+      est_size: 3
+
     lpf_conf:
-      wc: 100.0    # tần số cắt bộ lọc thông thấp (rad/s)
-      ts: 0.001    # bước lấy mẫu = 1/1000Hz
-      paralle_list: []
+      wc: 100.0
+      ts: 0.001

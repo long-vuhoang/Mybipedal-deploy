@@ -1,8 +1,4 @@
 #include "dm_imu/bsp_crc.h"
-
-// ─────────────────────────────────────────────────────────────────
-//  Lookup tables – ported nguyên từ bsp_crc.cpp của repo gốc
-// ─────────────────────────────────────────────────────────────────
 static const uint8_t CRC8_table[256] = {
     0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41,
     0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e, 0x5f, 0x01, 0xe3, 0xbd, 0x3e, 0x60, 0x82, 0xdc,
@@ -57,14 +53,6 @@ static const uint16_t CRC16_table[256] = {
     0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0,
 };
 
-// ─────────────────────────────────────────────────────────────────
-//  Get_CRC16 — ĐÚNG theo datasheet DM-IMU-L1 Appendix 4
-//
-//  Hai điểm khác với CCITT chuẩn:
-//    1. Dùng (crc << 1)  thay vì  (crc << 8)
-//    2. CRC tính trên TOÀN BỘ frame [0 .. flen-4]
-//       bao gồm cả 2 byte header 0x55 0xAA
-// ─────────────────────────────────────────────────────────────────
 uint16_t Get_CRC16(const uint8_t* ptr, uint16_t len)
 {
     uint16_t crc = 0xFFFF;

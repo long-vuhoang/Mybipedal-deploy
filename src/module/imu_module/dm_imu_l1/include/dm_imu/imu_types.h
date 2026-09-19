@@ -66,36 +66,6 @@ struct alignas(64) ImuObservation {
 static_assert(sizeof(ImuObservation)  == 64);
 static_assert(alignof(ImuObservation) == 64);
 
-
-// ═══════════════════════════════════════════════════════════════════
-//  LocomotionState — derived, computed on-demand (safety monitor).
-//  RL policy dùng ImuObservation trực tiếp.
-// ═══════════════════════════════════════════════════════════════════
-
-struct LocomotionState {
-    float pitch_rad {0.f};
-    float roll_rad  {0.f};
-    float yaw_rad   {0.f};
-    float pitch_rate{0.f};   // rad/s = gyr_y
-    float roll_rate {0.f};   // rad/s = gyr_x
-    float yaw_rate  {0.f};   // rad/s = gyr_z
-
-    float accel_norm_g    {1.f};
-    float accel_vertical_g{1.f};
-
-    bool  is_fallen      {false};
-    bool  is_stationary  {true};
-    bool  impact_detected{false};
-
-    float    dt_s{0.f};
-    uint64_t timestamp_ns{0};
-
-    static constexpr float kFallThreshRad = 1.05f;   // ~60°
-    static constexpr float kImpactThreshG = 2.5f;
-    static constexpr float kStationaryRps = 0.052f;  // 3°/s
-};
-
-
 // ═══════════════════════════════════════════════════════════════════
 //  Protocol constants
 // ═══════════════════════════════════════════════════════════════════

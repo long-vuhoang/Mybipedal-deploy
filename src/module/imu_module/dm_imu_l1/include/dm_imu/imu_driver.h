@@ -54,19 +54,10 @@ public:
      * @param every_n  Decimation: 1=1000Hz, 5=200Hz, 10=100Hz
      */
     void setObsCallback(ObsCallback cb, uint32_t every_n = 1);
-
-    void onFall(std::function<void()> cb) { fall_cb_ = std::move(cb); }
-
     // ── PULL: seqlock ~12ns, never blocks writer ──────────────────
 
     bool           getObs(ImuObservation& out) const noexcept;
     ImuObservation getObs()                    const noexcept;
-
-    // ── Safety monitor (NOT RL hot path) ─────────────────────────
-    LocomotionState getLocomotionState(
-        float fall_thresh_rad = LocomotionState::kFallThreshRad,
-        float impact_thresh_g = LocomotionState::kImpactThreshG,
-        float stationary_rps  = LocomotionState::kStationaryRps) const noexcept;
 
     // ── Fast scalar shortcuts ─────────────────────────────────────
     float pitchRad()  const noexcept;
@@ -75,8 +66,7 @@ public:
     float pitchRate() const noexcept;
     float rollRate()  const noexcept;
     float yawRate()   const noexcept;
-    bool  isFallen(float thresh = LocomotionState::kFallThreshRad) const noexcept;
-
+    
     // ── Stats ─────────────────────────────────────────────────────
     struct Stats {
         uint64_t ticks_total    {0};
@@ -143,9 +133,6 @@ private:
 
     ObsCallback obs_cb_;
     uint32_t    cb_every_n_{1};
-
-    std::function<void()> fall_cb_;
-    bool prev_fallen_{false};
 
     std::string port_;
     int         baud_;
