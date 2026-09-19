@@ -11,7 +11,7 @@ joint_list:
 
   - right_hip_pitch_joint
   - right_hip_roll_joint
-  - right_hip_yaw_joit
+  - right_hip_yaw_joint
   - right_knee_joint
   - right_ankle_pitch_joint
 
@@ -99,8 +99,8 @@ transmission:
   
   - name: left_ankle_pitch_trans
     type: SimpleTransmission
-    joint: left_ankle_joint
-    actuator: left_ankle_actuator
+    joint: left_ankle_pitch_joint
+    actuator: left_ankle_pitch_actuator
     direction: -1.0
 
   - name: right_hip_pitch_trans
@@ -129,8 +129,8 @@ transmission:
 
   - name: right_ankle_pitch_trans
     type: SimpleTransmission
-    joint: right_ankle_joint
-    actuator: right_ankle_actuator
+    joint: right_ankle_pitch_joint
+    actuator: right_ankle_pitch_actuator
     direction: 1.0
 
     

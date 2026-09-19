@@ -26,10 +26,10 @@ struct CanFrame {
 #pragma pack()
 
 enum class CtrlChannel : uint8_t {
-  CH1 = 1,
-  CH2 = 2,
-  CH3 = 3,
-  CH4 = 4,
+  CH1 = 0,
+  CH2 = 1,
+  CH3 = 2,
+  CH4 = 3,
 };
 
 enum class ActuatorType {
