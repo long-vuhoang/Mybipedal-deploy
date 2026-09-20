@@ -21,6 +21,8 @@ aimrt:
     executors:
       - name: rl_control_pub_thread # 创建一个单线程执行器
         type: simple_thread
+        thread_sched_policy: SCHED_FIFO:70   # thấp hơn CAN (80)
+        thread_bind_cpu: [6]                 # một core A76
       - name: joy_stick_pub_thread
         type: simple_thread
   channel: # 消息队列相关配置
@@ -29,7 +31,7 @@ aimrt:
       - type: ros2
     pub_topics_options: # 为 publish topic 选择后端
       - topic_name: "(.*)"
-        enable_backends: [local, ros2]
+        enable_backends: [local]
     sub_topics_options: # 为 subscribe topic 选择后端
       - topic_name: "(.*)"
         enable_backends: [local]
@@ -42,7 +44,7 @@ aimrt:
         enable_backends: [local]
     servers_options: # 为 server 选择后端
       - func_name: "(.*)"
-        enable_backends: [local, ros2]
+        enable_backends: [local]
   module: # 模块配置
     pkgs: # 要加载的动态库配置
       - path: ./libpkg1.so

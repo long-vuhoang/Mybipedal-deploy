@@ -129,7 +129,10 @@ my_ros2_proto::msg::JointCommand RLController::GetJointCmdData() {
 
 void RLController::LoadModel() {
   Ort::SessionOptions sessionOptions;
+  sessionOptions.SetIntraOpNumThreads(1);
   sessionOptions.SetInterOpNumThreads(1);
+  sessionOptions.SetExecutionMode(ExecutionMode::ORT_SEQUENTIAL);
+  sessionOptions.AddConfigEntry("session.intra_op.allow_spinning", "0");
   Ort::AllocatorWithDefaultOptions allocator;
 
   // ---- policy (actor) ----

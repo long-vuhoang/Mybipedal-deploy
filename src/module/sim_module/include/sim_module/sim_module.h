@@ -62,6 +62,7 @@ class SimModule : public aimrt::ModuleBase {
   std::unordered_map<std::string, int> joint_state_index_map_;
   aimrt::executor::ExecutorRef render_executor_;
   std::atomic<bool> is_render_thread_running_ = false;
+  std::atomic<bool> running_{false};  // true từ cuối Start() tới đầu Shutdown(); CmdCallback chỉ chạy khi true
 
   // pid
   array_t target_q_;

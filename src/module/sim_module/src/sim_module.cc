@@ -89,18 +89,43 @@ bool SimModule::Start() {
   kd_.resize(joint_names_.size());
   motor_torque_.resize(joint_names_.size());
 
+  running_.store(true, std::memory_order_release);
   AIMRT_INFO("Started succeeded.");
   return true;
 }
 
 void SimModule::Shutdown() {
+  // 1) Từ giờ CmdCallback (chạy inline trong thread điều khiển 1 kHz) sẽ bỏ qua.
+  running_.store(false, std::memory_order_release);
+
+  // 2) Dừng render thread TRƯỚC khi giải phóng m_/d_ (render thread đọc thẳng m_/d_ mỗi frame).
+  //    RenderLoop() kết thúc thì tự đặt exitrequest = 2.
+  if (sim_) {
+    int expected = 0;  // nếu cửa sổ đã bị đóng, RenderLoop đã đặt =2 rồi: đừng ghi đè
+    sim_->exitrequest.compare_exchange_strong(expected, 1);
+    for (int i = 0; i < 400 && sim_->exitrequest.load() != 2; ++i) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    if (sim_->exitrequest.load() != 2) {
+      AIMRT_WARN("Render thread did not exit in 2s; skip freeing MuJoCo model/data to avoid use-after-free.");
+      return;
+    }
+  }
+
+  // 3) Giữ mutex để chắc chắn không có CmdCallback đang dở dang, rồi mới giải phóng.
+  std::unique_lock<std::recursive_mutex> lock;
+  if (sim_) lock = std::unique_lock<std::recursive_mutex>(sim_->mtx);
   free(ctrl_noise_);
+  ctrl_noise_ = nullptr;
   mj_deleteData(d_);
+  d_ = nullptr;
   mj_deleteModel(m_);
+  m_ = nullptr;
   AIMRT_INFO("Shutdown succeeded.");
 }
 
 void SimModule::CmdCallback(const std::shared_ptr<const my_ros2_proto::msg::JointCommand>& msg) {
+  if (!running_.load(std::memory_order_acquire)) return;  // chưa Start xong hoặc đã Shutdown
   sensor_msgs::msg::Imu imu_data_msg;
   sensor_msgs::msg::JointState joint_states_msg;
 
@@ -110,6 +135,7 @@ void SimModule::CmdCallback(const std::shared_ptr<const my_ros2_proto::msg::Join
   }
 
   const std::unique_lock<std::recursive_mutex> lock(sim_->mtx);
+  if (!running_.load(std::memory_order_acquire) || !d_) return;  // kiểm tra lại dưới lock (Shutdown có thể vừa chạy)
   WriteMotorCmd(*msg);
   mj_step(m_, d_);
   ReadSensorData(imu_data_msg, joint_states_msg);

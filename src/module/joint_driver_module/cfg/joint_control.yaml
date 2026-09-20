@@ -1,6 +1,6 @@
 publish_frequency: 1000.0
 enable_actuator: true
-actuator_debug: true
+actuator_debug: false
 
 joint_list:
   - left_hip_pitch_joint
