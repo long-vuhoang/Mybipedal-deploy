@@ -83,13 +83,13 @@ transmission:
     type: SimpleTransmission
     joint: left_hip_roll_joint
     actuator: left_hip_roll_actuator
-    direction: 1.0
+    direction: -1.0
   
   - name: left_hip_yaw_trans
     type: SimpleTransmission
     joint: left_hip_yaw_joint
     actuator: left_hip_yaw_actuator
-    direction: 1.0
+    direction: -1.0
   
   - name: left_knee_trans
     type: SimpleTransmission
@@ -113,13 +113,13 @@ transmission:
     type: SimpleTransmission
     joint: right_hip_roll_joint
     actuator: right_hip_roll_actuator
-    direction: 1.0
+    direction: -1.0
 
   - name: right_hip_yaw_trans
     type: SimpleTransmission
     joint: right_hip_yaw_joint
     actuator: right_hip_yaw_actuator
-    direction: 1.0
+    direction: -1.0
   
   - name: right_knee_trans
     type: SimpleTransmission
