@@ -76,7 +76,7 @@ controllers:
   pd_stand:
     joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
     tau_limit:   [ 17.0, 17.0,  6.0,  14.0,  14.0,  17.0, 17.0,  6.0,  14.0,  14.0]
-    init_state:  [-0.18,  0.0,  0.0, -0.36, -0.18, -0.18,  0.0,  0.0, -0.36, -0.18]
+    init_state:  [-0.30,  0.0,  0.0, -0.70, -0.40, -0.30,  0.0,  0.0, -0.70, -0.40]
     stiffness:   [ 80.0, 80.0, 30.0,  80.0,  50.0,  80.0, 80.0, 30.0,  80.0,  50.0]
     damping:     [  2.3,  2.3,  1.5,   2.3,   1.8,   2.3,  2.3,  1.5,   2.3,   1.8]
   
@@ -84,7 +84,7 @@ controllers:
   rl_walk:
     joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
     tau_limit:   [ 17.0, 17.0,  6.0,  14.0,  14.0,  17.0, 17.0,  6.0,  14.0,  14.0]
-    init_state:  [-0.18,  0.0,  0.0, -0.36, -0.18, -0.18,  0.0,  0.0, -0.36, -0.18]
+    init_state:  [-0.30,  0.0,  0.0, -0.70, -0.40, -0.30,  0.0,  0.0, -0.70, -0.40]
     stiffness:   [ 80.0, 80.0, 30.0,  80.0,  50.0,  80.0, 80.0, 30.0,  80.0,  50.0]
     damping:     [  2.3,  2.3,  1.5,   2.3,   1.8,   2.3,  2.3,  1.5,   2.3,   1.8]
 
