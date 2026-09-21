@@ -16,6 +16,15 @@ bool ImuModule::Initialize(aimrt::CoreRef core) {
     publish_frequency_ = cfg_node["publish_frequency"].as<double>();
     bind_cpu_          = cfg_node["bind_cpu"].as<int>(); 
     rt_priority_       = cfg_node["rt_priority"].as<int>();
+    if (cfg_node["imu_frame"]) {  // tuỳ chọn: chuyển khung tọa độ của cảm biến về khung mà policy giả định
+      const auto n = cfg_node["imu_frame"];
+      auto bs = n["body_signs"] ? n["body_signs"].as<std::vector<double>>() : std::vector<double>{1, 1, 1};
+      if (bs.size() != 3) throw std::runtime_error("imu_frame.body_signs needs 3 values");
+      const bool z_down = n["world_z_down"] ? n["world_z_down"].as<bool>() : false;
+      const bool inverse = n["quat_inverse"] ? n["quat_inverse"].as<bool>() : false;
+      frame_fix_.Init({bs[0], bs[1], bs[2]}, z_down, inverse);
+      AIMRT_INFO("IMU frame fix ON: body_signs=[{},{},{}], world_z_down={}, quat_inverse={}", bs[0], bs[1], bs[2], z_down, inverse);
+    }
     // Tạo driver — chưa open hardware
     imu_ = std::make_shared<dm_imu::ImuDriver>(port_, baud_);
     if (!imu_->open(do_config_, "imu_reader", rt_priority_, bind_cpu_)) {
@@ -73,6 +82,11 @@ void ImuModule::PublishLoop() {
     imu_msg.orientation.x = imu.qx;
     imu_msg.orientation.y = imu.qy;
     imu_msg.orientation.z = imu.qz;
+    if (frame_fix_.enabled) {  // sang khung FLU/ENU trước khi phát ra (policy và sim dùng khung này)
+      frame_fix_.ApplyVec(imu_msg.angular_velocity.x, imu_msg.angular_velocity.y, imu_msg.angular_velocity.z);
+      frame_fix_.ApplyVec(imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, imu_msg.linear_acceleration.z);
+      frame_fix_.ApplyQuat(imu_msg.orientation.w, imu_msg.orientation.x, imu_msg.orientation.y, imu_msg.orientation.z);
+    }
     imu_msg.header.stamp = stamp;
     pub_imu.Publish(imu_msg);
     // AIMRT_INFO("Publish imu data, linear_acceleration: [{:.5f}, {:.5f}, {:.5f}]", imu.acc_x, imu.acc_y, imu.acc_z);

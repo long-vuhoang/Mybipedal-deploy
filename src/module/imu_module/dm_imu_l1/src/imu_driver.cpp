@@ -18,7 +18,6 @@
 
 namespace dm_imu {
 
-static constexpr float kDeg2Rad = 3.14159265358979f / 180.f;
 // ─────────────────────────────────────────────────────────────────
 //  SetRealTimeThread — set SCHED_FIFO + CPU affinity
 // ─────────────────────────────────────────────────────────────────
@@ -377,9 +376,11 @@ bool ImuDriver::parseFrame(const uint8_t* frame, uint16_t flen) noexcept
             break;
 
         case RID_GYRO:
-            pending_.gyr_x = f1 * kDeg2Rad;
-            pending_.gyr_y = f2 * kDeg2Rad;
-            pending_.gyr_z = f3 * kDeg2Rad;
+            // DM-IMU-L1 xuất gyro đã là rad/s (đã xác nhận bằng analyze_imu_csv.py: M≈57.3).
+            // KHÔNG nhân kDeg2Rad — trước đây làm ang_vel trong obs nhỏ đi 57 lần.
+            pending_.gyr_x = f1;
+            pending_.gyr_y = f2;
+            pending_.gyr_z = f3;
             pending_.has_gyro = true;
             break;
 

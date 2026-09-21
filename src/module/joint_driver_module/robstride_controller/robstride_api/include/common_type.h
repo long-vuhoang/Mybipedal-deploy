@@ -108,8 +108,8 @@ struct MitParam {
   {                                         \
       .pos_min = -4.0f * M_PI,              \
       .pos_max = 4.0f * M_PI,               \
-      .vel_min = -44.0f,                    \
-      .vel_max = 44.0f,                     \
+      .vel_min = -50.0f,                    \
+      .vel_max = 50.0f,                     \
       .toq_min = -6.0f,                     \
       .toq_max = 6.0f,                      \
       .kp_min = 0.0f,                       \

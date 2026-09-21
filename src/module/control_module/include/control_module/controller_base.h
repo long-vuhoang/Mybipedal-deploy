@@ -27,6 +27,8 @@ class ControllerBase {
   virtual void SetJointStateData(const sensor_msgs::msg::JointState& joint_state_data, const std::unordered_map<std::string, int> &joint_state_index_map_);
   virtual std::vector<std::string> GetJointList();
   virtual void Update() = 0;
+  // debug: ghi trace riêng của controller (mặc định không có gì). Gọi 1 lần khi thoát.
+  virtual size_t DumpTrace(const std::string& /*dir*/, int64_t /*t0_ns*/) { return 0; }
   virtual my_ros2_proto::msg::JointCommand GetJointCmdData() = 0;
 
  protected:

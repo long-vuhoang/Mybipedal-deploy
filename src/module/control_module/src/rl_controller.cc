@@ -1,6 +1,8 @@
 #include "control_module/rl_controller.h"
 #include <string.h>
 #include <cmath>
+#include <cstdlib>
+#include <algorithm>
 #include <iostream>
 
 namespace mybipedal_deploy::rl_control_module {
@@ -83,6 +85,33 @@ void RLController::Init(const YAML::Node& cfg_node) {
   }
   propri_.joint_pos.resize(policy_onnx_conf_.actions_size);
   propri_.joint_vel.resize(policy_onnx_conf_.actions_size);
+
+  // ---- debug trace: đúng vector đưa vào policy, để so real vs sim ----
+  if (const char* dir = std::getenv("MYBIPEDAL_LOG_DIR"); dir && *dir) {
+    double secs = 300.0;
+    if (const char* v = std::getenv("MYBIPEDAL_LOG_SECONDS")) {
+      try { secs = std::stod(v); } catch (...) {}
+    }
+    const int32_t N = policy_onnx_conf_.actions_size;
+    std::vector<std::string> cols;
+    for (const char* a : {"gyro_x", "gyro_y", "gyro_z"}) cols.emplace_back(std::string("obs_") + a);  // *ang_vel_scale
+    for (const char* a : {"grav_x", "grav_y", "grav_z"}) cols.emplace_back(std::string("obs_") + a);
+    for (int i = 0; i < N; ++i) cols.emplace_back("obs_dq_pos_" + std::to_string(i));   // (q - init)*scale
+    for (int i = 0; i < N; ++i) cols.emplace_back("obs_dq_vel_" + std::to_string(i));   // dq*scale
+    for (int i = 0; i < N; ++i) cols.emplace_back("obs_last_act_" + std::to_string(i));
+    for (const char* a : {"sin", "cos", "gait_freq", "gait_offset", "gait_duration", "gait_swing"}) cols.emplace_back(std::string("obs_") + a);
+    for (int i = 0; i < encoder_onnx_conf_.est_size; ++i) cols.emplace_back("est_" + std::to_string(i));
+    for (const char* a : {"cmd_vx", "cmd_vy", "cmd_wz"}) cols.emplace_back(a);
+    for (int i = 0; i < N; ++i) cols.emplace_back("act_" + std::to_string(i));
+    obs_row_.assign(cols.size(), 0.0f);
+    const double rate = 1.0 / (loop_dt_ * walk_step_conf_.decimation);
+    obs_trace_.Init(cols, static_cast<size_t>(std::max(secs, 1.0) * rate * 1.2) + 16);
+  }
+}
+
+size_t RLController::DumpTrace(const std::string& dir, int64_t t0_ns) {
+  if (!obs_trace_.enabled()) return 0;
+  return obs_trace_.Dump(dir + "/obs.csv", t0_ns);
 }
 
 void RLController::RestartController() {
@@ -99,6 +128,14 @@ void RLController::Update() {
   if (loop_count_ % walk_step_conf_.decimation == 0) {
     ComputeObservation();
     ComputeActions();
+    if (obs_trace_.enabled()) {
+      size_t k = 0;
+      for (int i = 0; i < policy_onnx_conf_.observations_size; ++i) obs_row_[k++] = static_cast<float>(single_obs_[i]);
+      for (int i = 0; i < encoder_onnx_conf_.est_size; ++i) obs_row_[k++] = est_[i];
+      for (int i = 0; i < 3; ++i) obs_row_[k++] = commands_[i];
+      for (int i = 0; i < policy_onnx_conf_.actions_size; ++i) obs_row_[k++] = actions_[i];
+      obs_trace_.Push(SteadyNowNs(), obs_row_.data());
+    }
   }
   loop_count_++;
 }

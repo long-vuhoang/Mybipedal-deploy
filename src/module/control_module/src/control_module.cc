@@ -99,11 +99,63 @@ bool ControlModule::Initialize(aimrt::CoreRef core) {
       subs_.push_back(core_.GetChannelHandle().GetSubscriber(cfg_node["sub_imu_data_name"].as<std::string>()));
       ret &= aimrt::channel::Subscribe<sensor_msgs::msg::Imu>(subs_.back(), 
         [this](const std::shared_ptr<const sensor_msgs::msg::Imu>& msg) {
+          // ===== TEST IMU FRAME =====
+          Eigen::Quaterniond q(
+              msg->orientation.w,
+              msg->orientation.x,
+              msg->orientation.y,
+              msg->orientation.z
+          );
+
+          double q_norm = q.norm();
+          q.normalize();
+
+          Eigen::Vector3d g_world(0.0, 0.0, -1.0);
+
+          Eigen::Vector3d g_body =
+              q.toRotationMatrix().transpose() * g_world;
+
+          // AIMRT_INFO(
+          //     "IMU TEST | q=[{:.6f}, {:.6f}, {:.6f}, {:.6f}] "
+          //     "q_norm={:.6f} | "
+          //     "g_body=[{:.6f}, {:.6f}, {:.6f}] norm={:.6f}",
+          //     msg->orientation.w,
+          //     msg->orientation.x,
+          //     msg->orientation.y,
+          //     msg->orientation.z,
+          //     q_norm,
+          //     g_body.x(),
+          //     g_body.y(),
+          //     g_body.z(),
+          //     g_body.norm()
+          // );
+          if (imu_trace_.enabled()) {  // [qw qx qy qz | gx gy gz | ax ay az]
+            imu_row_ = {static_cast<float>(msg->orientation.w), static_cast<float>(msg->orientation.x),
+                        static_cast<float>(msg->orientation.y), static_cast<float>(msg->orientation.z),
+                        static_cast<float>(msg->angular_velocity.x), static_cast<float>(msg->angular_velocity.y),
+                        static_cast<float>(msg->angular_velocity.z), static_cast<float>(msg->linear_acceleration.x),
+                        static_cast<float>(msg->linear_acceleration.y), static_cast<float>(msg->linear_acceleration.z)};
+            imu_trace_.Push(SteadyNowNs(), imu_row_.data());
+          }
           auto controller_names = state_machine_.GetCurrentControllerNames();
           for (const auto& name : controller_names) {
             controller_map_[name]->SetImuData(*msg);
           }
-          //AIMRT_INFO("Receive imu data, linear_acceleration: [{:.2f}, {:.2f}, {:.2f}]", msg->linear_acceleration.x, msg->linear_acceleration.y, msg->linear_acceleration.z);
+          // AIMRT_INFO(
+          //     "IMU | quat[wxyz]=[{:.6f}, {:.6f}, {:.6f}, {:.6f}] | "
+          //     "gyro=[{:.6f}, {:.6f}, {:.6f}] | "
+          //     "acc=[{:.6f}, {:.6f}, {:.6f}]",
+          //     msg->orientation.w,
+          //     msg->orientation.x,
+          //     msg->orientation.y,
+          //     msg->orientation.z,
+          //     msg->angular_velocity.x,
+          //     msg->angular_velocity.y,
+          //     msg->angular_velocity.z,
+          //     msg->linear_acceleration.x,
+          //     msg->linear_acceleration.y,
+          //     msg->linear_acceleration.z
+          // );
         });
 
       subs_.push_back(core_.GetChannelHandle().GetSubscriber(cfg_node["sub_joint_state_name"].as<std::string>()));
@@ -263,6 +315,7 @@ void ControlModule::InitTrace() {
   // ring giữ `secs` giây gần nhất; state có thể nhanh hơn control loop nên dư gấp đôi
   cmd_trace_.Init(cmd_cols, static_cast<size_t>(secs * freq_));
   state_trace_.Init(state_cols, static_cast<size_t>(secs * freq_ * 2));
+  imu_trace_.Init({"qw", "qx", "qy", "qz", "gx", "gy", "gz", "ax", "ay", "az"}, static_cast<size_t>(secs * freq_ * 2));
   cmd_row_.assign(n + 4, 0.0f);
   state_row_.assign(3 * n, 0.0f);
   trace_dir_ = dir;
@@ -281,6 +334,7 @@ void ControlModule::DumpTrace() {
   }
   const size_t nc = cmd_trace_.Dump(trace_dir_ + "/joint_cmd.csv", trace_t0_ns_);
   const size_t ns = state_trace_.Dump(trace_dir_ + "/joint_state.csv", trace_t0_ns_);
+  const size_t ni = imu_trace_.Dump(trace_dir_ + "/imu.csv", trace_t0_ns_);
 
   if (std::FILE* f = std::fopen((trace_dir_ + "/meta.txt").c_str(), "w")) {
     std::fprintf(f, "control_frequency_hz=%d\n", freq_);
@@ -295,7 +349,7 @@ void ControlModule::DumpTrace() {
     std::fprintf(f, "\n");
     std::fclose(f);
   }
-  AIMRT_INFO("Trace dumped to {}: joint_cmd.csv ({} rows), joint_state.csv ({} rows)", trace_dir_, nc, ns);
+  AIMRT_INFO("Trace dumped to {}: joint_cmd.csv ({} rows), joint_state.csv ({} rows), imu.csv ({} rows)", trace_dir_, nc, ns, ni);
 }
 
 }  // namespace mybipedal_deploy::rl_control_module

@@ -52,6 +52,8 @@ class ControlModule : public aimrt::ModuleBase {
   std::vector<std::string> ctrl_names_;   // ctrl_id trong CSV = index ở đây
   RingTrace cmd_trace_;                   // writer: thread MainLoop
   RingTrace state_trace_;                 // writer: thread publish /joint_states (callback inline)
+  RingTrace imu_trace_;                   // writer: thread publish /imu/data (callback inline)
+  std::array<float, 10> imu_row_{};
   std::vector<float> cmd_row_;
   std::vector<float> state_row_;
   std::vector<int> state_idx_;            // joint_names_[i] -> index trong JointState msg

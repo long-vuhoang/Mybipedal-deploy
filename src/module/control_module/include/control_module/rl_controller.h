@@ -5,6 +5,7 @@
 #include <atomic>
 
 #include "control_module/controller_base.h"
+#include "control_module/debug_recorder.h"
 #include "control_module/rotation_tools.h"
 
 namespace mybipedal_deploy::rl_control_module {
@@ -18,6 +19,7 @@ class RLController : public ControllerBase {
   void RestartController() override;
 
   void Update() override;
+  size_t DumpTrace(const std::string& dir, int64_t t0_ns) override;
   my_ros2_proto::msg::JointCommand GetJointCmdData() override;
 
  private:
@@ -105,6 +107,10 @@ class RLController : public ControllerBase {
     vector3_t base_euler_xyz;
     vector3_t projected_gravity;
   } propri_;
+
+  // debug trace obs/est/cmd/action @ policy rate (bật bằng env MYBIPEDAL_LOG_DIR)
+  RingTrace obs_trace_;
+  std::vector<float> obs_row_;
 
   // other
   int64_t loop_count_;

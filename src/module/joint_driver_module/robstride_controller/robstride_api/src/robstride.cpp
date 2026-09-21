@@ -48,13 +48,16 @@ void RobstrideMotor::SetDataFiled(uint8_t* send_base, uint8_t* recv_base) {
 
 const RobstrideMotor::Limits& RobstrideMotor::GetLimits() const {
   /*
-   * Values taken directly from common_type.h ROBSTRIDE_0x_MIT_MODE_DEFAULT_PARAM.
-   * Robstride 00: torque ±14 Nm, Robstride 02: torque ±17 Nm, Robstride 05: torque ±6 Nm.
-   * Velocity and position limits are identical for both models.
+   * Dải giải mã/mã hóa MIT theo từng model. QUAN TRỌNG: sai dải vận tốc làm vel_* phản hồi bị nhân/chia sai thang.
+   * Đã kiểm chứng trên robot thật bằng cách so vel_* với d(pos)/dt (tools/plot_joint_tracking.py):
+   *   RS00: trước đây 44 -> đọc lớn hơn thực ×1.32  => dải thật ±33 rad/s
+   *   RS05: trước đây 33 -> đọc nhỏ hơn thực ×0.66  => dải thật ±50 rad/s
+   *   RS02: ±44 rad/s (đúng, slope = 1.00)
+   * Torque: RS00 ±14 Nm, RS02 ±17 Nm, RS05 ±6 Nm (dải torque của RS05 chưa được đo lại, xem datasheet).
    */
   static const Limits kLimits00 = {
       .position = 4.0f * static_cast<float>(M_PI),
-      .velocity = 44.0f,
+      .velocity = 33.0f,
       .torque   = 14.0f,
       .kp       = 500.0f,
       .kd       = 5.0f,
@@ -67,11 +70,11 @@ const RobstrideMotor::Limits& RobstrideMotor::GetLimits() const {
       .kd       = 5.0f,
   };
   static const Limits kLimits05 = {
-    .position = 4.0f * static_cast<float>(M_PI),
-    .velocity = 33.0f,
-    .torque   = 6.0f,
-    .kp       = 500.0f,
-    .kd       = 5.0f,
+      .position = 4.0f * static_cast<float>(M_PI),
+      .velocity = 50.0f,
+      .torque   = 6.0f,
+      .kp       = 500.0f,
+      .kd       = 5.0f,
   };
   return (type_ == ActuatorType::Robstride_00) ? kLimits00 : (type_ == ActuatorType::Robstride_02) ? kLimits02 : kLimits05;
 }
