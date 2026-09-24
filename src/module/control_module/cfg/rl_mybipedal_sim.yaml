@@ -76,7 +76,7 @@ controllers:
   pd_stand:
     joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
     tau_limit:   [ 17.0, 17.0,  6.0,  14.0,  14.0,  17.0, 17.0,  6.0,  14.0,  14.0]
-    init_state:  [-0.30,  0.0,  0.0, -0.70, -0.40, -0.30,  0.0,  0.0, -0.70, -0.40]
+    init_state:  [-0.20,  0.0,  0.0, -0.50, -0.30, -0.20,  0.0,  0.0, -0.50, -0.30]
     stiffness:   [ 80.0, 80.0, 30.0,  80.0,  50.0,  80.0, 80.0, 30.0,  80.0,  50.0]
     damping:     [  2.3,  2.3,  1.5,   2.3,   1.8,   2.3,  2.3,  1.5,   2.3,   1.8]
   
@@ -84,7 +84,7 @@ controllers:
   rl_walk:
     joint_list: [left_hip_pitch_joint, left_hip_roll_joint, left_hip_yaw_joint, left_knee_joint, left_ankle_pitch_joint, right_hip_pitch_joint, right_hip_roll_joint, right_hip_yaw_joint, right_knee_joint, right_ankle_pitch_joint]
     tau_limit:   [ 17.0, 17.0,  6.0,  14.0,  14.0,  17.0, 17.0,  6.0,  14.0,  14.0]
-    init_state:  [-0.30,  0.0,  0.0, -0.70, -0.40, -0.30,  0.0,  0.0, -0.70, -0.40]
+    init_state:  [-0.20,  0.0,  0.0, -0.50, -0.30, -0.20,  0.0,  0.0, -0.50, -0.30]
     stiffness:   [ 80.0, 80.0, 30.0,  80.0,  50.0,  80.0, 80.0, 30.0,  80.0,  50.0]
     damping:     [  2.3,  2.3,  1.5,   2.3,   1.8,   2.3,  2.3,  1.5,   2.3,   1.8]
   
@@ -110,7 +110,7 @@ controllers:
       swing_height: 0.12
 
     policy_onnx_conf:
-      policy_file: cfg/control_module/policy/rl_walk_actor.onnx
+      policy_file: cfg/control_module/policy/rl_walk_actor1.onnx
       actions_size: 10
       # observations_size: 3(ang_vel) + 3(grav) + N(q_rel) + N(dq_rel) + N(last_action) + 2(sin,cos) + 4(gait_cmd) = 6 + 3*10 + 6 = 42
       observations_size: 42
@@ -119,7 +119,7 @@ controllers:
       actions_clip: 100.0
 
     encoder_onnx_conf:
-      encoder_file: cfg/control_module/policy/rl_walk_encoder.onnx
+      encoder_file: cfg/control_module/policy/rl_walk_encoder1.onnx
       est_size: 3
 
     lpf_conf:
