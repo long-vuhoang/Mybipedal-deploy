@@ -1,4 +1,4 @@
-<mujoco model="minibot">
+<mujoco model="mybipedal">
   <compiler angle='radian' eulerseq="XYZ" meshdir="../meshes/"
     autolimits="true" />
   <option timestep="0.001"/>
@@ -64,7 +64,7 @@
       </body>
       <body name="left_hip_pitch_link" pos="-0.0371 0.059 0.0225">
         <inertial pos="-0.00417062 0.0422641 -3.15653e-05" quat="0.705568 0.705568 0.0466288 0.0466288" mass="0.0943321" diaginertia="0.000121664 9.8e-05 8.33362e-05"/>
-        <joint name="left_hip_pitch_joint" pos="0 0 0" axis="0 -1 0" damping='0.01' armature="0.01" range="-2.61 3.14" actuatorfrcrange="-17 17"/>
+        <joint name="left_hip_pitch_joint" pos="0 0 0" axis="0 1 0" damping='0.01' armature="0.01" range="-3.14 2.61" actuatorfrcrange="-17 17"/>
         <geom pos="0.0371 -0.059 -0.0225" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="left_hip_pitch_link_1"/>
         <geom pos="0.0371 -0.059 -0.0225" quat="1 0 0 0" type="mesh" mesh="left_hip_pitch_link_1" rgba="0 0 0 1"/>
         <body name="RS02_4_1" pos="0.02 0.0525 0">
@@ -73,12 +73,12 @@
         </body>
         <body name="left_hip_roll_link" pos="0.025 0.0525 0">
           <inertial pos="-0.0209284 -4.58136e-05 -0.0295141" quat="0.65488 0.266705 0.266705 0.65488" mass="0.214014" diaginertia="0.000269 0.000220506 0.000178494"/>
-          <joint name="left_hip_roll_joint" pos="0 0 0" axis="1 0 0" damping='0.01' armature="0.01" range="-0.3 3.1" actuatorfrcrange="-17 17"/>
+          <joint name="left_hip_roll_joint" pos="0 0 0" axis="-1 0 0" damping='0.01' armature="0.01" range="-3.1 0.3" actuatorfrcrange="-17 17"/>
           <geom pos="0.0121 -0.1115 -0.0225" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="left_hip_roll_link_1"/>
           <geom pos="0.0121 -0.1115 -0.0225" quat="1 0 0 0" type="mesh" mesh="left_hip_roll_link_1" rgba="0 0 0 1"/>
           <body name="left_hip_yaw_link" pos="-0.02415 0 -0.055">
             <inertial pos="0.00453541 -0.00012515 -0.0827174" quat="0.999918 -0.00395755 0.012187 0.000547296" mass="0.234011" diaginertia="0.000718268 0.000645024 0.000266708"/>
-            <joint name="left_hip_yaw_joint" pos="0 0 0" axis="0 0 -1" damping='0.01' armature="0.01" range="-3 3" actuatorfrcrange="-6 6"/>
+            <joint name="left_hip_yaw_joint" pos="0 0 0" axis="0 0 1" damping='0.01' armature="0.01" range="-3 3" actuatorfrcrange="-6 6"/>
             <geom pos="0.03625 -0.1115 0.0325" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="left_hip_yaw_link_1"/>
             <geom pos="0.03625 -0.1115 0.0325" type="mesh" mesh="left_hip_yaw_link_1"/>
             <body name="RS05_1_1" pos="0 0 -0.015">
@@ -86,7 +86,7 @@
             </body>
             <body name="left_knee_link" pos="0 0.0267 -0.133">
               <inertial pos="1.57859e-06 -0.0275984 -0.0746707" quat="0.707107 0 0 0.707107" mass="0.248334" diaginertia="0.001112 0.001081 0.000184"/>
-              <joint name="left_knee_joint" pos="0 0 0" axis="0 1 0" damping='0.01' armature="0.01" range="-0.25 2.3" actuatorfrcrange="-14 14"/>
+              <joint name="left_knee_joint" pos="0 0 0" axis="0 -1 0" damping='0.01' armature="0.01" range="-1.57 0.25" actuatorfrcrange="-14 14"/>
               <geom pos="0.03625 -0.1382 0.1655" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="left_knee_link_1"/>
               <geom pos="0.03625 -0.1382 0.1655" quat="1 0 0 0" type="mesh" mesh="left_knee_link_1" rgba="0 0 0 1"/>
               <body name="RS00_1_1" pos="0 -0.001 0">
@@ -97,7 +97,7 @@
               </body>
               <body name="left_ankle_pitch_link" pos="0 0 -0.154">
                 <inertial pos="0.00537725 -0.0248724 -0.0258705" quat="-0.0116192 0.738553 -0.0212994 0.673758" mass="0.151095" diaginertia="0.000303287 0.000262924 0.000160789"/>
-                <joint name="left_ankle_pitch_joint" pos="0 0 0" axis="0 -1 0" damping='0.01' armature="0.01" range="-1.46 1.6" actuatorfrcrange="-14 14"/>
+                <joint name="left_ankle_pitch_joint" pos="0 0 0" axis="0 1 0" damping='0.01' armature="0.01" range="-1.6 1.46" actuatorfrcrange="-14 14"/>
                 <geom pos="0.03625 -0.1382 0.3195" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="left_ankle_pitch_link_1"/>
                 <geom pos="0.03625 -0.1382 0.3195" quat="1 0 0 0" type="mesh" mesh="left_ankle_pitch_link_1" rgba="0 0 0 1"/>
                 <geom type = "sphere" size = "0.01" pos = "0.075 -0.005 -0.038" class = "collision"  />
@@ -124,12 +124,12 @@
         </body>
         <body name="right_hip_roll_link" pos="0.025 -0.0525 0">
           <inertial pos="-0.0209284 -4.58099e-05 -0.0295141" quat="0.65488 0.266705 0.266705 0.65488" mass="0.214014" diaginertia="0.000269 0.000220506 0.000178494"/>
-          <joint name="right_hip_roll_joint" pos="0 0 0" axis="1 0 0" damping='0.01' armature="0.01" range="-3.1 0.3" actuatorfrcrange="-17 17"/>
+          <joint name="right_hip_roll_joint" pos="0 0 0" axis="-1 0 0" damping='0.01' armature="0.01" range="-0.3 3.1" actuatorfrcrange="-17 17"/>
           <geom pos="0.0121 0.1115 -0.0225" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="right_hip_roll_link_1"/>
           <geom pos="0.0121 0.1115 -0.0225" quat="1 0 0 0" type="mesh" mesh="right_hip_roll_link_1" rgba="0 0 0 1"/>
           <body name="right_hip_yaw_link" pos="-0.02415 0 -0.055">
             <inertial pos="0.00453591 0.000125209 -0.0827174" quat="0.999918 0.00395755 0.012187 -0.000547296" mass="0.234013" diaginertia="0.000718268 0.000645024 0.000266708"/>
-            <joint name="right_hip_yaw_joint" pos="0 0 0" axis="0 0 -1" damping='0.01' armature="0.01" range="-3 3" actuatorfrcrange="-6 6"/>
+            <joint name="right_hip_yaw_joint" pos="0 0 0" axis="0 0 1" damping='0.01' armature="0.01" range="-3 3" actuatorfrcrange="-6 6"/>
             <geom pos="0.03625 0.1115 0.0325" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="right_hip_yaw_link_1"/>
             <geom pos="0.03625 0.1115 0.0325" quat="1 0 0 0" type="mesh" mesh="right_hip_yaw_link_1"/>
             <body name="RS05_2_1" pos="0 0 -0.015">
@@ -137,7 +137,7 @@
             </body>
             <body name="right_knee_link" pos="0 -0.0267 -0.133">
               <inertial pos="-1.57825e-06 0.0275984 -0.0746707" quat="0.707107 0 0 0.707107" mass="0.248334" diaginertia="0.001112 0.001081 0.000184"/>
-              <joint name="right_knee_joint" pos="0 0 0" axis="0 -1 0" damping='0.01' armature="0.01" range="-2.3 0.25" actuatorfrcrange="-14 14"/>
+              <joint name="right_knee_joint" pos="0 0 0" axis="0 -1 0" damping='0.01' armature="0.01" range="-1.57 0.25" actuatorfrcrange="-14 14"/>
               <geom pos="0.03625 0.1382 0.1655" quat="1 0 0 0" type="mesh" contype="0" conaffinity="0" group="1" density="0" mesh="right_knee_link_1"/>
               <geom pos="0.03625 0.1382 0.1655" quat="1 0 0 0" type="mesh" mesh="right_knee_link_1" rgba="0 0 0 1"/>
               <body name="RS00_3_1" pos="0 0.001 0">

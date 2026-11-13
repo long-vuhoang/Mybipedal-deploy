@@ -21,6 +21,6 @@ record_pid=$!
 pgid=$(ps -o pgid= -p $record_pid | tr -d ' ')
 # echo "Child script PGID: $pgid"
 
-./aimrt_main --cfg_file_path=./cfg/x1_cfg.yaml
+./aimrt_main --cfg_file_path=./cfg/mybipedal_cfg.yaml
 
 kill -TERM -$pgid 2>/dev/null
