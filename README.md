@@ -11,6 +11,10 @@ For detailed tutorials on `AimRT` framework, please visit the [AimRT official we
 
 
 ![x1](doc/Mybipedal.jpg)
+![walk1](doc/gifs/01_walk1.gif)
+![turn1](doc/gifs/02_turn1.gif)
+![moveside](doc/gifs/03_walkside.gif)
+![walk2](doc/gifs/04_walk2.gif)
 
 ## Software Architecture Diagram
 
